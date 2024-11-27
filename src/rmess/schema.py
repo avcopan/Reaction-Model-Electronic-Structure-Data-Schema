@@ -81,7 +81,6 @@ class CoarseEdge(BaseModel):
 class Schema(BaseModel):
     """The final schema, encapsulating all information"""
 
-    distinguish_enantiomers: bool
     plural_species: list[LumpedSpecies]
     detail_network: list[DetailEdge]
     coarse_network: list[CoarseEdge]
