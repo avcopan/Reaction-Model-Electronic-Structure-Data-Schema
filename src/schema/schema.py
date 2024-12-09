@@ -2,6 +2,8 @@
 # Full Schema
 from el_struc_schema.src.schema.mech import Species
 
+from pydantic import BaseModel
+
 
 class Schema(BaseModel):
     """The final schema, encapsulating all information"""

@@ -8,6 +8,8 @@ import json
 
 from pydantic import BaseModel
 
+from el_struc_schema.src.schema.species import MolecularEntity
+
 
 # Species
 class Calculation(BaseModel):
@@ -32,60 +34,22 @@ class Species(BaseModel):
     conformers: list[Conformer]
 
 
-class LumpedSpecies(BaseModel):
-    """Describes the contribution of each species to the lump.
-
-    Example:
-        (C2H5OH, 0.2)
-        (C3H7OH, 0.4)
-        (C4H9OH, 0.4)
-    """
-
-    species_fractions: list[tuple[Species, float]]
-
-
-# Detail network elements
-#   Each detailed network will connect specific points at a specific level of theory
-class DetailNode(BaseModel):
-    """A Node/"NetworkStage" in a detailed PES network"""
+class Point(MolecularEntity):
+    """set of molecular coordinates"""
 
     calculations: list[Calculation]
 
 
+# Detail network elements
+# Each detailed network will connect specific points at a specific level of theory
+class DetailNodeBase(BaseModel):
+    """A Node/"NetworkStage" in a detailed PES network"""
+
+    role: str
+    entities: list[MolecularEntity]
+
 class DetailEdge(BaseModel):
     """An Edge/"ReactionStep" in a detailed PES network"""
 
-    start_node: DetailNode
-    end_node: DetailNode
-    ts_node: DetailNode
+    nodes: list[DetailNodeBase]
 
-
-# Coarse network elements
-#   Each coarse network will connect species (or lumped species) comprising multiple
-#   conformers
-class CoarseNode(BaseModel):
-    """A Node/"NetworkStage" in a lumped reaction network"""
-
-    plural_species: list[LumpedSpecies]
-
-
-class CoarseEdge(BaseModel):
-    """An Edge/"ReactionStep" in a detailed PES network"""
-
-    start_node: DetailNode
-    end_node: DetailNode
-    ts_node: DetailNode
-
-
-# Full Schema
-class Schema(BaseModel):
-    """The final schema, encapsulating all information"""
-
-    plural_species: list[LumpedSpecies]
-    detail_network: list[DetailEdge]
-    coarse_network: list[CoarseEdge]
-
-
-if __name__ == "__main__":
-    schema = Schema.model_json_schema()  # (1)!
-    print(json.dumps(schema, indent=2))  # (2)!
